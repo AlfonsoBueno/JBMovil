@@ -1,0 +1,23 @@
+{
+  "tigre": {
+    "cellW": 185,
+    "cellH": 170,
+    "anims": {
+      "idle": 5,
+      "right": 7,
+      "left": 7,
+      "jump": 8,
+      "claw": 7
+    }
+  },
+  "bea": {
+    "cellW": 164,
+    "cellH": 252,
+    "anims": {
+      "idle": 4,
+      "right": 6,
+      "left": 6,
+      "jump": 4
+    }
+  }
+}

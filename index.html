@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>El Tigretón vs Bea — ¡Recupera el móvil!</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      background: #0d0d1a; touch-action: none; -webkit-tap-highlight-color: transparent;
+    }
+    #game { width: 100vw; height: 100vh; }
+    canvas { display: block; }
+    /* aviso de orientación en móvil vertical */
+    #rotate {
+      position: fixed; inset: 0; display: none; z-index: 50;
+      background: #0d0d1a; color: #fff; font-family: monospace;
+      align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: 18px;
+    }
+    @media (max-width: 900px) and (orientation: portrait) {
+      #rotate { display: flex; }
+    }
+  </style>
+</head>
+<body>
+  <div id="game"></div>
+  <div id="rotate">📱➡️🔄<br><br>Gira el móvil en horizontal<br>para jugar mejor 🐯</div>
+
+  <script src="vendor/phaser.min.js"></script>
+  <script src="src/config.js"></script>
+  <script src="src/sfx.js"></script>
+  <script src="src/controls.js"></script>
+  <script src="src/scenes/Preload.js"></script>
+  <script src="src/scenes/Menu.js"></script>
+  <script src="src/scenes/Game.js"></script>
+  <script src="src/scenes/End.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>
