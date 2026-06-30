@@ -1,40 +1,44 @@
-// Controles táctiles en pantalla (multitouch). Devuelve un estado leído por el Game.
+// Controles táctiles del runner (multitouch). Saltar = toque derecha; agacharse = mantener izquierda.
 class TouchControls {
   constructor(scene) {
     this.scene = scene;
-    this.state = { left: false, right: false, jump: false, claw: false };
-    scene.input.addPointer(3); // permitir varios dedos
+    this.state = { jump: false, duck: false };
+    scene.input.addPointer(2);
 
-    const h = scene.scale.height, w = scene.scale.width;
-    const r = 46;
-    const mk = (x, y, label, color) => {
+    const H = scene.scale.height, W = scene.scale.width;
+    const R = Math.max(56, H * 0.13);
+    const pad = R * 1.1;
+    const rowY = H - pad;
+
+    const mk = (x, y, r, label, color) => {
       const c = scene.add.circle(x, y, r, color, 0.35)
-        .setStrokeStyle(3, 0xffffff, 0.7).setScrollFactor(0).setDepth(1000).setInteractive();
-      const t = scene.add.text(x, y, label, { fontFamily: "monospace", fontSize: "30px", color: "#ffffff" })
-        .setOrigin(0.5).setScrollFactor(0).setDepth(1001);
+        .setStrokeStyle(4, 0xffffff, 0.85).setScrollFactor(0).setDepth(1000).setInteractive();
+      c.input.hitArea = new Phaser.Geom.Circle(r, r, r * 1.3);
+      c.input.hitAreaCallback = Phaser.Geom.Circle.Contains;
+      scene.add.text(x, y, label, {
+        fontFamily: "monospace", fontSize: Math.round(r * 0.72) + "px",
+        color: "#ffffff", stroke: "#0005", strokeThickness: 3,
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(1001);
       return c;
     };
 
-    const bLeft  = mk(70, h - 70, "←", 0x2196f3);
-    const bRight = mk(180, h - 70, "→", 0x2196f3);
-    const bJump  = mk(w - 180, h - 70, "⤒", 0x4caf50);
-    const bClaw  = mk(w - 70, h - 80, "✦", 0xff5252);
+    const mkLbl = (x, y, txt) => scene.add.text(x, y, txt, {
+      fontFamily: "monospace", fontSize: "12px", color: "#ffffffaa",
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(1001);
 
-    const hold = (btn, key) => {
-      btn.on("pointerdown", () => { this.state[key] = true; btn.setFillStyle(btn.fillColor, 0.6); });
-      btn.on("pointerup",   () => { this.state[key] = false; btn.setFillStyle(btn.fillColor, 0.35); });
-      btn.on("pointerout",  () => { this.state[key] = false; btn.setFillStyle(btn.fillColor, 0.35); });
-    };
-    hold(bLeft, "left");
-    hold(bRight, "right");
+    const bDuck = mk(pad, rowY, R, "▼", 0x1565c0);
+    const bJump = mk(W - pad, rowY, R, "⤒", 0x2e7d32);
+    mkLbl(pad,     rowY + R + 12, "AGACHAR");
+    mkLbl(W - pad, rowY + R + 12, "SALTAR");
 
-    // jump y claw como "edge" (un toque = una acción)
-    bJump.on("pointerdown", () => { this.state.jump = true; bJump.setFillStyle(bJump.fillColor, 0.6); });
-    bJump.on("pointerup",   () => { bJump.setFillStyle(bJump.fillColor, 0.35); });
-    bClaw.on("pointerdown", () => { this.state.claw = true; bClaw.setFillStyle(bClaw.fillColor, 0.6); });
-    bClaw.on("pointerup",   () => { bClaw.setFillStyle(bClaw.fillColor, 0.35); });
+    bDuck.on("pointerdown", () => { this.state.duck = true;  bDuck.setFillStyle(0x1565c0, 0.65); });
+    bDuck.on("pointerup",   () => { this.state.duck = false; bDuck.setFillStyle(0x1565c0, 0.35); });
+    bDuck.on("pointerout",  () => { this.state.duck = false; bDuck.setFillStyle(0x1565c0, 0.35); });
+
+    bJump.on("pointerdown", () => { this.state.jump = true;  bJump.setFillStyle(0x2e7d32, 0.65); });
+    bJump.on("pointerup",   () => {                          bJump.setFillStyle(0x2e7d32, 0.35); });
+    bJump.on("pointerout",  () => {                          bJump.setFillStyle(0x2e7d32, 0.35); });
   }
 
-  // se llama al final de cada update para consumir las acciones de un toque
-  consume() { this.state.jump = false; this.state.claw = false; }
+  consume() { this.state.jump = false; }
 }

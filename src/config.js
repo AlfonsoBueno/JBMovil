@@ -14,29 +14,27 @@ const SPRITES = {
 const GAME_W = 960;
 const GAME_H = 540;
 
-// Mundo / nivel
-const WORLD_W = 3600;
-const GROUND_TOP = 496; // y de la superficie del suelo
-
-// Jugabilidad
-const TIGER = {
-  speed: 230,
-  jump: 560,
-  scale: 0.80,    // igualado al tamaño de Bea
-  clawCooldown: 360,   // ms entre zarpazos
-  clawActive: 300,     // ms con la garra "viva"
-  invuln: 1100,        // ms de invulnerabilidad tras recibir golpe
-  startHearts: 3,
+// === RUNNER (estilo Dino de Chrome) ===
+const RUN = {
+  startSpeed: 360,     // px/s iniciales del mundo
+  maxSpeed: 1000,      // tope de velocidad
+  accel: 7.5,          // px/s que se suma por segundo (aceleración)
+  playerX: 250,        // x fija del Tigretón en pantalla
+  floorY: 470,         // línea del suelo (pies)
+  gravity: 2400,       // gravedad manual del salto
+  jumpV: 760,          // impulso de salto
+  coyote: 110,         // ms de margen de salto tras dejar el suelo
+  buffer: 130,         // ms de buffer de salto
+  duckScaleY: 0.58,    // achatamiento al agacharse
+  scale: 0.8,          // escala del Tigretón
 };
 
-const BEA = {
-  scale: 0.48,
-  walk: 100,
-  throwEvery: 1500,    // ms entre sartenes (fase normal)
-  throwEveryBoss: 950, // ms en fase jefe
-  stun: 1300,          // ms aturdida tras recibir su propia sartén
-  hitsToDefeat: 3,     // sartenes devueltas para vencerla
-  bossX: 3250,         // posición donde planta cara junto al móvil
+// Persecución de Bea
+const CHASE = {
+  beaScale: 0.52,
+  startX: -80,         // empieza fuera de pantalla por la izquierda
+  gainRate: 14,        // px/s que Bea avanza sola (amenaza lenta y creciente)
+  stumblePush: 150,    // Bea avanza X px al tropezar / recibir sartén
+  caughtGap: 32,       // si playerX - beaX <= esto -> te pilla
 };
 
-const PAN = { speed: 360, scale: 0.12, reflectSpeed: 620 };

@@ -1,7 +1,5 @@
 const config = {
   type: Phaser.AUTO,
-  width: GAME_W,
-  height: GAME_H,
   backgroundColor: "#bfe3ef",
   parent: "game",
   pixelArt: false,
@@ -9,6 +7,9 @@ const config = {
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: GAME_W,
+    height: GAME_H,
+    expandParent: false,
   },
   physics: {
     default: "arcade",

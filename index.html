@@ -2,18 +2,32 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#1a1a2e" />
-  <title>El Tigretón vs Bea — ¡Recupera el móvil!</title>
+  <title>¡Huye Tigre, Huye!</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      width: 100%; height: 100%; overflow: hidden;
+    html {
+      width: 100%; height: 100%;
+      /* iOS Safari: fill the real viewport without address-bar gap */
+      height: -webkit-fill-available;
+    }
+    body {
+      width: 100%; height: 100vh; height: 100dvh;
+      overflow: hidden; position: fixed; top: 0; left: 0;
       background: #0d0d1a; touch-action: none; -webkit-tap-highlight-color: transparent;
     }
-    #game { width: 100vw; height: 100vh; }
-    canvas { display: block; }
+    #game {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      /* respect safe-areas on notched phones */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+    canvas { display: block; touch-action: none; }
     /* aviso de orientación en móvil vertical */
     #rotate {
       position: fixed; inset: 0; display: none; z-index: 50;

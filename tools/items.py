@@ -10,7 +10,8 @@ os.makedirs(OUT, exist_ok=True)
 
 COLS, ROWS = 6, 3
 # (nombre, col, fila)
-TARGETS = [("mobile", 0, 0), ("pan", 1, 0), ("heart", 2, 0), ("coin", 3, 0), ("gem", 1, 1)]
+TARGETS = [("mobile", 0, 0), ("pan", 1, 0), ("heart", 2, 0), ("coin", 3, 0), ("gem", 1, 1),
+           ("shield", 5, 1), ("clock", 2, 2), ("coffee", 5, 2)]
 
 
 def kill_white(img, tol=46):
