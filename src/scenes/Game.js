@@ -5,7 +5,7 @@ class Game extends Phaser.Scene {
 
   create() {
     const W = this.scale.width, H = this.scale.height;
-    this.groundY = RUN.floorY;
+    this.groundY = Math.round(H * 0.87);
 
     // ---------- FONDO PARALLAX ----------
     this.add.image(0, 0, "sky").setOrigin(0).setDisplaySize(W, H).setScrollFactor(0);

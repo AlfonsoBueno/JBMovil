@@ -29,20 +29,28 @@
       width: 100% !important; height: 100% !important;
       touch-action: none;
     }
-    /* aviso de orientación en móvil vertical */
+    /* aviso de orientación — portrait en cualquier tamaño */
     #rotate {
-      position: fixed; inset: 0; display: none; z-index: 50;
+      position: fixed; inset: 0; display: none; z-index: 9999;
       background: #0d0d1a; color: #fff; font-family: monospace;
-      align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: 18px;
+      flex-direction: column;
+      align-items: center; justify-content: center; text-align: center; padding: 32px; font-size: 22px;
+      line-height: 1.8;
     }
-    @media (max-width: 900px) and (orientation: portrait) {
+    @media (orientation: portrait) {
       #rotate { display: flex; }
     }
   </style>
 </head>
 <body>
   <div id="game"></div>
-  <div id="rotate">📱➡️🔄<br><br>Gira el móvil en horizontal<br>para jugar mejor 🐯</div>
+  <div id="rotate">
+    <div style="font-size:64px">🔄</div>
+    <br>
+    <strong>Gira el móvil</strong><br>
+    El juego funciona en horizontal<br>
+    <span style="font-size:14px;color:#aaa">¡Huye Tigre, Huye! 🐯</span>
+  </div>
 
   <script src="vendor/phaser.min.js"></script>
   <script src="src/config.js"></script>
