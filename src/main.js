@@ -5,11 +5,10 @@ const config = {
   pixelArt: false,
   roundPixels: true,
   scale: {
-    mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.EXPAND,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     width: GAME_W,
     height: GAME_H,
-    expandParent: false,
   },
   physics: {
     default: "arcade",
