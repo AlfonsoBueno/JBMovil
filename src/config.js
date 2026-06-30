@@ -29,12 +29,14 @@ const RUN = {
   scale: 0.8,          // escala del Tigretón
 };
 
-// Persecución de Bea
+// Persecución de Bea — mecánica de "gap numérico" (no posición física)
 const CHASE = {
   beaScale: 0.52,
-  startX: -80,         // empieza fuera de pantalla por la izquierda
-  gainRate: 14,        // px/s que Bea avanza sola (amenaza lenta y creciente)
-  stumblePush: 150,    // Bea avanza X px al tropezar / recibir sartén
-  caughtGap: 32,       // si playerX - beaX <= esto -> te pilla
+  maxGap: 360,         // gap inicial (distancia abstracta)
+  drainRate: 11,       // gap que pierde por segundo solo
+  obstacleDrain: 85,   // gap que pierde al chocar con obstáculo
+  coinRefill: 4,       // gap que recupera por moneda
+  lifeLostRefill: 240, // gap que recupera al perder vida
+  lifeLostInvuln: 2200,// ms invulnerable tras perder vida
 };
 

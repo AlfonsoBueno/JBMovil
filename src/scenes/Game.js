@@ -44,6 +44,8 @@ class Game extends Phaser.Scene {
     this.mult = 1;
     this.alive = true;
     this.objects = [];
+    this.lives = 3;
+    this.beaGap = CHASE.maxGap;   // distancia abstracta; 0 = te pilla
     this.shieldUntil = 0; this.boostUntil = 0; this.slowUntil = 0;
     this.stumbleSlowUntil = 0; this.invulnUntil = 0;
     this.coyoteUntil = 0; this.jumpBufferUntil = 0;
@@ -72,8 +74,14 @@ class Game extends Phaser.Scene {
       .setOrigin(0, 0).setScrollFactor(0).setDepth(900);
     this.multText = this.add.text(16, 44, "", { ...st, fontSize: "18px", color: "#7CFC00" })
       .setOrigin(0, 0).setScrollFactor(0).setDepth(900);
-    // iconos de power-up activos
-    this.pwBar = this.add.container(GAME_W / 2, 20).setScrollFactor(0).setDepth(900);
+    this.heartsText = this.add.text(GAME_W / 2, 14, "❤️❤️❤️", { fontSize: "26px" })
+      .setOrigin(0.5, 0).setScrollFactor(0).setDepth(900);
+    // barra de distancia a Bea (verde→rojo)
+    this.add.rectangle(GAME_W / 2, 52, 160, 10, 0x000000, 0.5)
+      .setScrollFactor(0).setDepth(899);
+    this.dangerBar = this.add.rectangle(GAME_W / 2 - 80, 52, 160, 10, 0x44cc44, 1)
+      .setOrigin(0, 0.5).setScrollFactor(0).setDepth(900);
+    this.pwBar = this.add.container(GAME_W / 2, 68).setScrollFactor(0).setDepth(900);
 
     this.hint = this.add.text(GAME_W / 2, 84, "", { ...st, fontSize: "17px", color: "#fff" })
       .setOrigin(0.5, 0).setScrollFactor(0).setDepth(900);
@@ -243,9 +251,9 @@ class Game extends Phaser.Scene {
 
   stumble(obj, time) {
     obj.dead = true;
-    this.invulnUntil = time + 800;
-    this.stumbleSlowUntil = time + 320;
-    this.beaX += CHASE.stumblePush;
+    this.invulnUntil = time + 600;
+    this.stumbleSlowUntil = time + 280;
+    this.beaGap = Math.max(0, this.beaGap - CHASE.obstacleDrain);
     this.mult = 1;
     SFX.hurt();
     this.cameras.main.shake(220, 0.014);
@@ -261,6 +269,7 @@ class Game extends Phaser.Scene {
   collectCoin(obj, i) {
     this.coinCount++;
     this.score(obj.gem ? 150 : 20);
+    this.beaGap = Math.min(CHASE.maxGap, this.beaGap + (obj.gem ? CHASE.coinRefill * 5 : CHASE.coinRefill));
     if (this.coinCount % 8 === 0) this.mult = Math.min(9, this.mult + 1);
     SFX.coin();
     this.burst(obj.sprite.x, obj.sprite.y, obj.gem ? 0x66e0ff : 0xffd54f, obj.gem ? 14 : 7);
@@ -270,9 +279,9 @@ class Game extends Phaser.Scene {
   collectPower(obj, i) {
     const t = this.time.now, k = obj.kind;
     if (k === "shield") { this.shieldUntil = t + 6000; this.flash("🛡️ ¡Escudo!", 1200); }
-    else if (k === "coffee") { this.boostUntil = t + 3500; this.beaX -= 80; this.beaX = Math.max(this.beaX, CHASE.startX); this.flash("☕ ¡Turbo!", 1200); }
-    else if (k === "clock") { this.slowUntil = t + 4500; this.flash("⏰ Cámara lenta", 1200); }
-    else if (k === "heart") { this.beaX -= 140; this.beaX = Math.max(this.beaX, CHASE.startX); this.score(50); this.flash("❤️ ¡Aire! Bea retrocede", 1200); }
+    else if (k === "coffee") { this.boostUntil = t + 3500; this.beaGap = Math.min(CHASE.maxGap, this.beaGap + 60); this.flash("☕ ¡Turbo!", 1200); }
+    else if (k === "clock") { this.slowUntil = t + 4500; this.beaGap = Math.min(CHASE.maxGap, this.beaGap + 80); this.flash("⏰ Cámara lenta", 1200); }
+    else if (k === "heart") { this.beaGap = Math.min(CHASE.maxGap, this.beaGap + 130); this.score(50); this.flash("❤️ ¡Aire libre!", 1200); }
     SFX.coin();
     this.burst(obj.sprite.x, obj.sprite.y, 0x9bd1ff, 16);
     this.removeObj(i);
@@ -291,21 +300,56 @@ class Game extends Phaser.Scene {
 
   // ---------------- persecución ----------------
   updateChase(dt, time) {
-    // Bea avanza sola despacio; la velocidad aumenta ligeramente con el mundo
-    const speedMult = 1 + (this.speed - RUN.startSpeed) / (RUN.maxSpeed - RUN.startSpeed) * 0.5;
-    this.beaX += CHASE.gainRate * speedMult * dt;
-    // nunca supera al jugador
-    this.beaX = Math.min(this.beaX, RUN.playerX - CHASE.caughtGap - 1);
+    if (time < this.invulnUntil) {
+      // durante invuln Bea se aleja despacio
+      this.beaGap = Math.min(CHASE.maxGap, this.beaGap + 30 * dt);
+    } else {
+      // drena más rápido cuanto más avanzado el juego
+      const speedMult = 1 + (this.speed - RUN.startSpeed) / (RUN.maxSpeed - RUN.startSpeed) * 0.8;
+      this.beaGap -= CHASE.drainRate * speedMult * dt;
+    }
+    this.beaGap = Math.max(0, this.beaGap);
+
+    // posición visual: gap=maxGap → Bea en x=-80; gap=0 → Bea pegada al jugador
+    const t = 1 - this.beaGap / CHASE.maxGap;
+    this.beaX = Phaser.Math.Linear(-80, RUN.playerX - 30, t);
     this.bea.x = this.beaX;
     if (this.bea.anims.currentAnim?.key !== "bea-right") this.bea.play("bea-right", true);
 
-    // peligro: tinte rojizo cuanto más cerca (empieza a notarse al 50% del camino)
-    const gap = RUN.playerX - this.beaX;
-    const maxGap = RUN.playerX - CHASE.startX;
-    const danger = Phaser.Math.Clamp(1 - (gap - CHASE.caughtGap) / (maxGap * 0.5), 0, 1);
-    this.bea.setTint(Phaser.Display.Color.GetColor(255, (255 - danger * 190) | 0, (255 - danger * 190) | 0));
+    // tinte rojo al 40% del camino
+    const danger = Phaser.Math.Clamp((t - 0.4) / 0.6, 0, 1);
+    this.bea.setTint(Phaser.Display.Color.GetColor(255, (255 - danger * 210) | 0, (255 - danger * 210) | 0));
 
-    if (gap <= CHASE.caughtGap) this.gameOver();
+    // barra de peligro visual bajo los corazones
+    if (this.dangerBar) {
+      this.dangerBar.setScale(1 - t, 1);
+      this.dangerBar.setFillStyle(danger > 0.6 ? 0xff3333 : danger > 0.3 ? 0xff9900 : 0x44cc44, 1);
+    }
+
+    if (this.beaGap <= 0) this.loseLife(time);
+  }
+
+  loseLife(time) {
+    if (!this.alive) return;
+    this.lives--;
+    this.mult = 1;
+    this.beaGap = Math.min(CHASE.maxGap, this.beaGap + CHASE.lifeLostRefill);
+    this.invulnUntil = time + CHASE.lifeLostInvuln;
+    SFX.hurt();
+    this.cameras.main.shake(350, 0.022);
+    this.cameras.main.flash(200, 255, 20, 20, false);
+    this.tweens.add({ targets: this.player, alpha: 0.3, duration: 110, yoyo: true, repeat: 6,
+      onComplete: () => this.player.setAlpha(1) });
+    this.updateHearts();
+    if (this.lives <= 0) {
+      this.time.delayedCall(500, () => this.gameOver());
+    } else {
+      this.flash("❤️".repeat(this.lives) + "  ¡Corre!", 1800);
+    }
+  }
+
+  updateHearts() {
+    this.heartsText.setText("❤️".repeat(this.lives) + "🖤".repeat(3 - this.lives));
   }
 
   // ---------------- UI / utilidades ----------------
