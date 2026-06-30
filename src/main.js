@@ -5,8 +5,7 @@ const config = {
   pixelArt: false,
   roundPixels: true,
   scale: {
-    mode: Phaser.Scale.EXPAND,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
+    mode: Phaser.Scale.RESIZE,
     width: GAME_W,
     height: GAME_H,
   },

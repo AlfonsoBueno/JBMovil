@@ -4,7 +4,7 @@ class Game extends Phaser.Scene {
   constructor() { super("Game"); }
 
   create() {
-    const W = GAME_W, H = GAME_H;
+    const W = this.scale.width, H = this.scale.height;
     this.groundY = RUN.floorY;
 
     // ---------- FONDO PARALLAX ----------
@@ -65,28 +65,28 @@ class Game extends Phaser.Scene {
   }
 
   buildUI() {
+    const W = this.scale.width;
     const st = { fontFamily: "monospace", stroke: "#000", strokeThickness: 4 };
-    this.distText = this.add.text(GAME_W - 16, 14, "0 m", { ...st, fontSize: "26px", color: "#ffffff" })
+    this.distText = this.add.text(W - 16, 14, "0 m", { ...st, fontSize: "26px", color: "#ffffff" })
       .setOrigin(1, 0).setScrollFactor(0).setDepth(900);
-    this.bestText = this.add.text(GAME_W - 16, 44, "récord " + Math.floor(this.best) + " m", { ...st, fontSize: "15px", color: "#ffe082" })
+    this.bestText = this.add.text(W - 16, 44, "récord " + Math.floor(this.best) + " m", { ...st, fontSize: "15px", color: "#ffe082" })
       .setOrigin(1, 0).setScrollFactor(0).setDepth(900);
     this.coinText = this.add.text(16, 14, "🪙 0", { ...st, fontSize: "22px", color: "#ffd54f" })
       .setOrigin(0, 0).setScrollFactor(0).setDepth(900);
     this.multText = this.add.text(16, 44, "", { ...st, fontSize: "18px", color: "#7CFC00" })
       .setOrigin(0, 0).setScrollFactor(0).setDepth(900);
-    this.heartsText = this.add.text(GAME_W / 2, 14, "❤️❤️❤️", { fontSize: "26px" })
+    this.heartsText = this.add.text(W / 2, 14, "❤️❤️❤️", { fontSize: "26px" })
       .setOrigin(0.5, 0).setScrollFactor(0).setDepth(900);
-    // barra de distancia a Bea (verde→rojo)
-    this.add.rectangle(GAME_W / 2, 52, 160, 10, 0x000000, 0.5)
+    this.add.rectangle(W / 2, 52, 160, 10, 0x000000, 0.5)
       .setScrollFactor(0).setDepth(899);
-    this.dangerBar = this.add.rectangle(GAME_W / 2 - 80, 52, 160, 10, 0x44cc44, 1)
+    this.dangerBar = this.add.rectangle(W / 2 - 80, 52, 160, 10, 0x44cc44, 1)
       .setOrigin(0, 0.5).setScrollFactor(0).setDepth(900);
-    this.pwBar = this.add.container(GAME_W / 2, 68).setScrollFactor(0).setDepth(900);
+    this.pwBar = this.add.container(W / 2, 68).setScrollFactor(0).setDepth(900);
 
-    this.hint = this.add.text(GAME_W / 2, 84, "", { ...st, fontSize: "17px", color: "#fff" })
+    this.hint = this.add.text(W / 2, 84, "", { ...st, fontSize: "17px", color: "#fff" })
       .setOrigin(0.5, 0).setScrollFactor(0).setDepth(900);
 
-    this.muteBtn = this.add.text(GAME_W - 16, 70, SFX.muted ? "🔇" : "🔊", { fontSize: "22px" })
+    this.muteBtn = this.add.text(W - 16, 70, SFX.muted ? "🔇" : "🔊", { fontSize: "22px" })
       .setOrigin(1, 0).setScrollFactor(0).setDepth(900).setInteractive({ useHandCursor: true });
     const tg = () => { SFX.toggle(); this.muteBtn.setText(SFX.muted ? "🔇" : "🔊"); };
     this.muteBtn.on("pointerup", tg);
@@ -184,7 +184,7 @@ class Game extends Phaser.Scene {
   }
 
   addObstacle(kind) {
-    const x = GAME_W + 80;
+    const x = this.scale.width + 80;
     let o;
     if (kind === "beam") {
       o = this.add.image(x, this.groundY - 92, "beam").setOrigin(0.5, 1).setDepth(16);
@@ -201,7 +201,7 @@ class Game extends Phaser.Scene {
     const baseY = this.groundY - Phaser.Math.Between(40, 150);
     const gem = Math.random() < 0.18;
     for (let i = 0; i < n; i++) {
-      const x = GAME_W + 60 + i * 42;
+      const x = this.scale.width + 60 + i * 42;
       const y = baseY - Math.sin((i / (n - 1)) * Math.PI) * 46; // arco
       const isGem = gem && i === Math.floor(n / 2);
       const o = this.add.image(x, y, isGem ? "gem" : "coin").setDepth(14);
@@ -214,7 +214,7 @@ class Game extends Phaser.Scene {
   addPowerUp() {
     const kinds = ["shield", "coffee", "clock", "heart"];
     const k = kinds[Phaser.Math.Between(0, kinds.length - 1)];
-    const o = this.add.image(GAME_W + 70, this.groundY - Phaser.Math.Between(70, 140), k).setDepth(14);
+    const o = this.add.image(this.scale.width + 70, this.groundY - Phaser.Math.Between(70, 140), k).setDepth(14);
     setScaleToHeight(o, 40);
     this.tweens.add({ targets: o, y: o.y - 12, duration: 700, yoyo: true, repeat: -1, ease: "Sine.inOut" });
     // halo
@@ -234,7 +234,7 @@ class Game extends Phaser.Scene {
       s.x -= ws * dt;
       if (obj.halo) { obj.halo.x = s.x; obj.halo.y = s.y; }
 
-      if (s.x < -120) { this.removeObj(i); continue; }
+      if (s.x < -120 || s.x > this.scale.width + 220) { this.removeObj(i); continue; }
       if (obj.dead) continue;
 
       const oB = s.getBounds();
